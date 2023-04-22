@@ -13,6 +13,7 @@ library(FactoMineR)
 library(cluster)
 library(scales)
 library(ggrepel)
+source('scripts/plot-helpers.R')
 
 # load model
 
@@ -48,20 +49,34 @@ ggsave('outputs/spp-var-explained.png', width = 7, height = 10)
 mpost <- convertToCodaObject(m)
 
 prednames <- colnames(m$XData)
-
+spp <- list()
+trend <- list()
 for(i in seq_along(prednames)){
-  
-  Gradient = constructGradient(m, focalVariable= prednames[i],
+  Gradient <- constructGradient(m, focalVariable= prednames[i],
                                non.focalVariables=1)
-  
-  predY = predict(m, XData=Gradient$XDataNew, studyDesign=Gradient$studyDesignNew,
+  predY <- predict(m, XData=Gradient$XDataNew, studyDesign=Gradient$studyDesignNew,
                   ranLevels=Gradient$rLNew, expected=TRUE)
-  
-  png(paste0('outputs/community_', prednames[i], '.png'), height = 300, width = 400)
-  plotGradient(m, Gradient, pred=predY, measure="S", las=1,
-               showData = TRUE, showPosteriorSupport = FALSE)
-  dev.off()
+  plotdat <- get_spprich(m, Gradient, pred=predY, measure="S", las=1,
+                         showData = TRUE, showPosteriorSupport = FALSE)
+  spp[[i]] <- data.frame(Threat = prednames[i], plotdat[[2]])
+  trend[[i]] <- data.frame(Threat = prednames[i], plotdat[[1]])
 }
+sppdat <- do.call(rbind, spp) %>% filter(Threat != 'pre_mm_syr')
+trendat <- do.call(rbind, trend) %>% filter(Threat != 'pre_mm_syr')
+
+ggplot() +
+  geom_point(data = sppdat, aes(x = x, y = y), col = 'lightgrey') +
+  geom_line(data = trendat, aes(x = x, y = richness_50), size = 1) +
+  geom_line(data = trendat, aes(x = x, y = richness_2.5), linetype = 'dotted') +
+  geom_line(data = trendat, aes(x = x, y = richness_97.5), linetype = 'dotted') +
+  geom_line(data = trendat, aes(x = x, y = richness_25), linetype = 'dashed') +
+  geom_line(data = trendat, aes(x = x, y = richness_75), linetype = 'dashed') +
+  facet_wrap(~Threat, scales = 'free_x') +
+  xlab('') +
+  ylab('Species Richness') +
+  theme_classic()
+
+ggsave('outputs/species-trends.png', width = 6, height = 4)
 
 # plot individual species marginal effects 
 
