@@ -1,9 +1,10 @@
-plotGradient2 <- function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = NULL, 
-          index = 1, q = c(0.025, 0.5, 0.975), cicol = rgb(0, 0, 1, 
-                                                           alpha = 0.5), pointcol = "lightgrey", pointsize = 1, 
-          showData = FALSE, jigger = 0, yshow = NA, showPosteriorSupport = FALSE, 
-          main, ...) 
+get_spprich <- function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = NULL, 
+                         index = 1, q = c(0.025, 0.5, 0.975), cicol = rgb(0, 0, 1, 
+                                                                          alpha = 0.5), pointcol = "lightgrey", pointsize = 1, 
+                         showData = FALSE, jigger = 0, yshow = NA, showPosteriorSupport = TRUE, 
+                         main, ...) 
 {
+  out <- list()
   Pr = NA
   if (is.null(xlabel)) {
     switch(class(hM$X)[1L], matrix = {
@@ -23,9 +24,10 @@ plotGradient2 <- function (hM, Gradient, predY, measure, xlabel = NULL, ylabel =
   })
   ngrid = length(xx)
   if (measure == "S") {
-    predS = abind::abind(lapply(predY, rowSums), along = 2)
+    predS = abind(lapply(predY, rowSums), along = 2)
     Pr = mean(predS[ngrid, ] > predS[1, ])
     qpred = apply(predS, c(1), quantile, probs = q, na.rm = TRUE)
+    qpred2 = apply(predS, c(1), quantile, probs = c(0.25, 0.5, 0.75), na.rm = TRUE)
     if (is.null(ylabel)) {
       ylabel = "Summed response"
       if (all(hM$distr[, 1] == 2)) {
@@ -37,7 +39,7 @@ plotGradient2 <- function (hM, Gradient, predY, measure, xlabel = NULL, ylabel =
     }
   }
   if (measure == "Y") {
-    tmp = abind::abind(predY, along = 3)
+    tmp = abind(predY, along = 3)
     Pr = mean(tmp[ngrid, index, ] > tmp[1, index, ])
     qpred = apply(tmp, c(1, 2), quantile, probs = q, na.rm = TRUE)
     qpred = qpred[, , index]
@@ -67,6 +69,10 @@ plotGradient2 <- function (hM, Gradient, predY, measure, xlabel = NULL, ylabel =
   me = qpred[2, ]
   lo1 = min(lo, yshow, na.rm = TRUE)
   hi1 = max(hi, yshow, na.rm = TRUE)
+  
+  datToPlot <- data.frame(x = xx, richness_50 = qpred[2,], richness_97.5 = qpred[3,], richness_2.5 = qpred[1,],
+                          richness_75 = qpred2[3,] , richness_25 = qpred2[1,])
+  out[[1]] <- datToPlot
   if (showData) {
     switch(class(hM$X)[1L], matrix = {
       XDatacol = which(colnames(Gradient$XDataNew)[[1]] == 
@@ -102,65 +108,8 @@ plotGradient2 <- function (hM, Gradient, predY, measure, xlabel = NULL, ylabel =
     hi1 <- max(hi1, max(pY, na.rm = TRUE))
     lo1 <- min(lo1, min(pY, na.rm = TRUE))
   }
-  if (is.factor(xx)) {
-    toPlot = data.frame(xx, me, lo, hi, stringsAsFactors = TRUE)
-    pl = ggplot(toPlot, aes_string(x = xx, y = me)) + geom_bar(position = position_dodge(), 
-                                                               stat = "identity") + xlab(xlabel) + ylab(ylabel) + 
-      geom_errorbar(aes(ymin = lo, ymax = hi), width = 0.2, 
-                    position = position_dodge(0.9))
-    if (showData) {
-      if (jigger > 0) {
-        pX = as.numeric(pX)
-        pX = pX + runif(n = length(pY), min = -jigger, 
-                        max = jigger)
-      }
-      dataToPlot = data.frame(pX = pX, pY = pY, stringsAsFactors = TRUE)
-      pl = pl + geom_point(data = dataToPlot, aes_string(x = pX, 
-                                                         y = pY), size = pointsize)
-    }
-    if (!missing(main)) 
-      pl = pl + labs(title = main)
-  }
-  else {
-    if (inherits(hM$X, "list") && !measure == "Y") {
-      plot(xx, qpred[2, ], ylim = c(lo1, hi1), type = "l", 
-           xaxt = "n", xlab = xlabel, ylab = ylabel, 
-           ...)
-      axis(1, c(min(xx), (min(xx) + max(xx))/2, max(xx)), 
-           c("min", "mean", "max"))
-    }
-    else { # this is the species richness plot
-      
-      dataToPlot = data.frame(pX = pX, pY = pY, stringsAsFactors = TRUE)
-      pl <- ggplot(dataToPlot, aes_string(x = pX, y = pY)) + geom_smooth(method = 'gam') + geom_point(alpha = 0.1) + xlab(xlabel) + ylab(ylabel) +theme_classic()
-      pl
-      
-    }
-    if (showData) {
-      if (jigger > 0) {
-        de = (hi1 - lo1) * jigger
-        pY = lo1 + de + (hi1 - lo1 - 2 * de) * (pY - 
-                                                  lo1)/(hi1 - lo1) + runif(n = length(pY), min = -jigger, 
-                                                                           max = jigger)
-      }
-    
-      dataToPlot = data.frame(pX = pX, pY = pY, stringsAsFactors = TRUE)
-      pl <- ggplot(dataToPlot, aes_string(x = pX, y = pY)) + geom_smooth(method = 'gam') + geom_point(alpha = 0.1) + xlab(xlabel) + ylab(ylabel) +theme_classic()
-      pl
-
-    }
-    #polygon(c(xx, rev(xx)), c(qpred[1, ], rev(qpred[3, ])), 
-     #       col = cicol, border = FALSE)
-    #lines(xx, qpred[2, ], lwd = 2)
-    if (!missing(main)) 
-      pl + labs(title = main)
-  }
-  if (showPosteriorSupport && !is.factor(xx)) {
-    mtext(gettextf("Pr[pred(%s=min) %s pred(%s=max)] = %.2f", 
-                   xlabel, ifelse(Pr < 0.5, ">", "<"), xlabel, 
-                   ifelse(Pr < 0.5, 1 - Pr, Pr)))
-  }
-  if (is.factor(xx)) 
-    pl
-  else Pr
+  
+  spp.pred <- data.frame(x = pX, y = pY)
+  out[[2]] <- spp.pred
+  return(out)
 }
