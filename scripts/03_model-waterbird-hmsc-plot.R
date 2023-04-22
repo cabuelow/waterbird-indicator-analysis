@@ -14,7 +14,6 @@ library(cluster)
 library(scales)
 library(ggrepel)
 
-
 # load model
 
 m <- readRDS('outputs/models/mod-spatialRF_final.rds')
@@ -101,6 +100,7 @@ beta <- do.call(rbind, beta.coefs) %>%
 
 beta2 <- beta %>% 
   filter(probable_pos == 1 | probable_neg == 1) %>% 
+  mutate(probable_pos = ifelse(probable_pos == 1, 'Positive', 'Negative')) %>% 
   filter(variable != 'pre_mm_syr')
 
 ggplot(beta2) +
@@ -119,9 +119,19 @@ ggplot(beta2) +
 
 ggsave('outputs/beta-coefficients_100.png', width = 10, height = 8.5)
 
+# turn into heatmap for easier visualisation - +ve or -ve responses
 
-# TODO; spatially explicity predicitons
+ggplot(beta2) +
+  aes(x = variable, y = species, fill = factor(probable_pos)) +
+  geom_tile() +
+  xlab('') +
+  ylab('') +
+  #facet_wrap(~, ncol=5) +
+  theme_classic() +
+  theme(legend.title = element_blank(),
+        axis.text.x = element_text(angle = 45, vjust = 0.95, hjust = 1))
 
+ggsave('outputs/indicator-response-heatmap.png', width = 5, height = 10)
 
 ### extra dont use below!
 

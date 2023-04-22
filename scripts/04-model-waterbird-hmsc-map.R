@@ -10,14 +10,10 @@ library(scales)
 # load data
 
 dat <- read.csv('data/waterbird-basin-threats-100_bioregion.csv')
-basin.riv.thrt.wide <- read.csv('data/basins-mean-riv-threat.csv')
 basins.qld <- st_read('data/Enviro_dat_QLD/hydro_basins_qld_lev08_valid.shp') %>% 
   st_transform(crs = 4326)
 qld <- st_read('data/qld-shp/queensland-polygon.shp') %>% 
   st_transform(crs = 4326)
-
-# load model
-
 m <- readRDS('outputs/models/mod-spatialRF_final.rds')
 m
 
@@ -27,15 +23,17 @@ m
 alph <- 0.5 # percent increase in threat level
 
 XDataNew <- data.frame(HYBAS_ID = dat$HYBAS_ID, m$XData) %>% 
-  mutate(Phosphorus_Loading = Phosphorus_Loading + (Phosphorus_Loading*alph)) %>% 
-  mutate(Phosphorus_Loading = ifelse(Phosphorus_Loading == 0, 
-                                     min(m$XData$Phosphorus_Loading[m$XData$Phosphorus_Loading>0]),
-                                     Phosphorus_Loading))
+  mutate(Phosphorus_Loading = 1)
+ # mutate(Phosphorus_Loading = Phosphorus_Loading + (Phosphorus_Loading*alph)) %>% 
+  #mutate(Phosphorus_Loading = ifelse(Phosphorus_Loading == 0, 
+   #                                  min(m$XData$Phosphorus_Loading[m$XData$Phosphorus_Loading>0]),
+    #                                 Phosphorus_Loading))
 XDataNew2 <- data.frame(HYBAS_ID = dat$HYBAS_ID, m$XData) %>% 
-  mutate(Consumptive_Water_Loss = Consumptive_Water_Loss + Consumptive_Water_Loss*alph) %>% 
-  mutate(Consumptive_Water_Loss = ifelse(Consumptive_Water_Loss == 0, 
-                                     min(m$XData$Consumptive_Water_Loss[m$XData$Consumptive_Water_Loss>0]),
-                                     Consumptive_Water_Loss))
+  mutate(Consumptive_Water_Loss = 1)
+  #mutate(Consumptive_Water_Loss = Consumptive_Water_Loss + Consumptive_Water_Loss*alph) %>% 
+  #mutate(Consumptive_Water_Loss = ifelse(Consumptive_Water_Loss == 0, 
+   #                                  min(m$XData$Consumptive_Water_Loss[m$XData$Consumptive_Water_Loss>0]),
+    #                                 Consumptive_Water_Loss))
 
 # make predictions
 
