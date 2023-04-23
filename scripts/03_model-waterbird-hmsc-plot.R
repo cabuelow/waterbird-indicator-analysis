@@ -147,8 +147,6 @@ ggplot(beta2) +
 
 ggsave('outputs/indicator-response-heatmap.png', width = 5, height = 10)
 
-### extra dont use below!
-
 # cluster analysis to identify species that are respoding simililarly to threats
 
 spp.response <- beta %>% 
@@ -249,91 +247,7 @@ ggplot(beta3) +
 
 ggsave('outputs/indicator-response-heatmap.png', width = 12, height = 7)
 
-# pca
-
-set.seed(123)
-res.pca <- PCA(dat2, graph = FALSE)
-
-# visualize eigenvalues/variances
-
-fviz_screeplot(res.pca, addlabels = TRUE, ylim = c(0, 50))
-
-# extract the results for variables
-
-var <- get_pca_var(res.pca)
-var
-
-# contributions of variables to PCs
-
-fviz_contrib(res.pca, choice = "var", axes = 1, top = 10)
-fviz_contrib(res.pca, choice = "var", axes = 2, top = 10)
-fviz_contrib(res.pca, choice = "var", axes = 3, top = 10)
-fviz_contrib(res.pca, choice = "var", axes = 4, top = 10)
-fviz_contrib(res.pca, choice = "var", axes = 5, top = 10)
-
-# plot
-
-fviz_pca_var(res.pca, axes = c(1,2), col.var="contrib",
-             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             repel = TRUE) 
-
-fviz_pca_var(res.pca, axes = c(1,3), col.var="contrib",
-             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             repel = TRUE) 
-
-fviz_pca_var(res.pca, axes = c(1,4), col.var="contrib",
-             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             repel = TRUE) 
-
-# save scores for countries on each pca
-
-scores <- data.frame(get_pca_ind(res.pca)$coord)
-colnames(scores) <- c('Nitro_conswater', 'Aqua_phos', 'Pest_phos',
-                      'Techniques', 'Services')
-scores$species <- spp.response$species
-#scores$Institution <- dat$Institution
-scores <- scores %>% 
-  left_join(dat.clust)
-
-# plot
-
-ggplot(scores) +
-  aes(x =  Nitro_conswater, y = Aqua_phos, 
-      #size = Communities_eia,
-      col = factor(cluster), 
-      #label = Country.y.y, 
-      alpha = 0.9) +
-  geom_point(size = 2) +
-  geom_vline(aes(xintercept = 0),linetype = 'dashed', alpha = 0.5) +
-  geom_hline(aes(yintercept = 0), linetype = 'dashed', alpha = 0.5) +
-  #geom_text_repel(size = 2, show.legend = F, max.overlaps = 20) +
-  scale_color_brewer(palette = 'Set2') +
-  theme_classic() +
-  guides(alpha = FALSE,
-         color=guide_legend(title="Typology")) #+
-#geom_text(show.legend = FALSE)
-
-ggsave('outputs/pca_biodiverse-techniques-services-biodiversity.png', width = 5, height = 3)
-
-###
-
-ggplot(scores) +
-  aes(x =  Techniques.services, y =  Enviro.impacts.socio.cultural, 
-      #size = Communities_eia,
-      col = factor(cluster), 
-      #label = Country.y.y, 
-      alpha = 0.9) +
-  geom_point(size = 2) +
-  geom_vline(aes(xintercept = 0),linetype = 'dashed', alpha = 0.5) +
-  geom_hline(aes(yintercept = 0), linetype = 'dashed', alpha = 0.5) +
-  #geom_text_repel(size = 2, show.legend = F, max.overlaps = 20) +
-  scale_color_brewer(palette = 'Set2') +
-  theme_classic() +
-  guides(alpha = FALSE,
-         color=guide_legend(title="Typology")) #+
-#geom_text(show.legend = FALSE)
-
-ggsave('outputs/pca_techniques-services-enviro-impacts-socio-cultural.png', width = 5, height = 3)
+### extra for looking at residual correlations between species - species interactions or missing covariates
 
 # extract estimates of species-species associations
 # computeAssociations function converts the covariances to correlations
