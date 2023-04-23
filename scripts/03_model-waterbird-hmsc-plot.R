@@ -162,32 +162,16 @@ set.seed(123)
 dat2 <- data.frame(spp.response[,-1])
 row.names(dat2) <- spp.response$species
 
-# visualise distance values for clustering
-
-fviz_dist(get_dist(dat2, method = 'euclidian'), lab_size = 8)
-
-# hierarchical cluster analysis
-
-dat_hclust <- hcut(get_dist(dat2, method = 'euclidian'), k = 7, isdiss = T)
-
-# plot dendrogram
-
-fviz_dend(dat_hclust, rect = TRUE)
-#ggsave('outputs/typologies/governance-typology-dendrogram.png', width = 11, height = 7)
-
-# visualize the silhouette
-
-fviz_silhouette(dat_hclust)
-
 # try kmeans
 
-km <- kmeans(dat2, 8)
+fviz_nbclust(dat2, kmeans, method = "wss")
+km <- kmeans(dat2, 7, nstart = 50)
 
 # visualise
 
 fviz_cluster(km, data = dat2,
              axes = c(1,3),
-             palette = c("#00AFBB","#2E9FDF", "#E7B800", "#FC4E07", "black", 'pink', 'purple'),
+             palette = c("#00AFBB","#2E9FDF", "#E7B800", "#FC4E07", "black", 'pink', 'purple', 'gold'),
              ggtheme = theme_minimal(),
              main = "Partitioning Clustering Plot"
 )
@@ -220,10 +204,10 @@ ggplot(dat_sum) +
   scale_fill_distiller(palette = 'YlOrRd', direction = 1) +
   xlab('') +
   ylab('') +
-  facet_wrap(~ cluster, ncol=5) +
+  facet_wrap(~ cluster, ncol=3) +
   theme_classic()
 
-ggsave('outputs/cluster-heatmap.png', width = 8.3, height = 2)
+ggsave('outputs/cluster-heatmap.png', width = 6, height = 4)
 
 beta4 <- beta %>% 
   left_join(dplyr::select(dat.clust, species, cluster)) %>% 
@@ -245,6 +229,24 @@ ggplot(beta4) +
  # theme(legend.position = 'none') 
 
 ggsave('outputs/beta-coefficients_100_cluster.png', width = 10, height = 8.5)
+
+# now plot spp responses grouped by their cluster
+
+beta3 <- beta2 %>% 
+  left_join(dat.clust, by = 'species')
+
+ggplot(beta3) +
+  aes(x = variable, y = species, fill = factor(probable_pos)) +
+  geom_tile() +
+  xlab('') +
+  ylab('') +
+  facet_wrap(~cluster, ncol=3, scales = 'free_y') +
+  theme_classic() +
+  theme(legend.title = element_blank(),
+        legend.position = c(0.3, 0.06),
+        axis.text.x = element_text(angle = 45, vjust = 0.98, hjust = 1))
+
+ggsave('outputs/indicator-response-heatmap.png', width = 9, height = 9)
 
 # pca
 
@@ -331,8 +333,6 @@ ggplot(scores) +
 #geom_text(show.legend = FALSE)
 
 ggsave('outputs/pca_techniques-services-enviro-impacts-socio-cultural.png', width = 5, height = 3)
-
-
 
 # extract estimates of species-species associations
 # computeAssociations function converts the covariances to correlations
