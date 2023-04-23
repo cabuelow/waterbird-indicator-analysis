@@ -13,6 +13,7 @@ library(FactoMineR)
 library(cluster)
 library(scales)
 library(ggrepel)
+library(abind)
 source('scripts/plot-helpers.R')
 
 # load model
@@ -67,10 +68,8 @@ trendat <- do.call(rbind, trend) %>% filter(Threat != 'pre_mm_syr')
 ggplot() +
   geom_point(data = sppdat, aes(x = x, y = y), col = 'lightgrey') +
   geom_line(data = trendat, aes(x = x, y = richness_50), size = 1) +
-  geom_line(data = trendat, aes(x = x, y = richness_2.5), linetype = 'dotted') +
-  geom_line(data = trendat, aes(x = x, y = richness_97.5), linetype = 'dotted') +
-  geom_line(data = trendat, aes(x = x, y = richness_25), linetype = 'dashed') +
-  geom_line(data = trendat, aes(x = x, y = richness_75), linetype = 'dashed') +
+  geom_ribbon(data = trendat, aes(x = x, ymin = richness_2.5, ymax = richness_97.5), fill = "grey", alpha = 0.3) +
+  geom_ribbon(data = trendat, aes(x = x, ymin = richness_25, ymax = richness_75), fill = "darkgrey", alpha = 0.5) +
   facet_wrap(~Threat, scales = 'free_x') +
   xlab('') +
   ylab('Species Richness') +

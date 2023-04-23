@@ -24,7 +24,7 @@ get_spprich <- function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = N
   })
   ngrid = length(xx)
   if (measure == "S") {
-    predS = abind(lapply(predY, rowSums), along = 2)
+    predS = abind::abind(lapply(predY, rowSums), along = 2)
     Pr = mean(predS[ngrid, ] > predS[1, ])
     qpred = apply(predS, c(1), quantile, probs = q, na.rm = TRUE)
     qpred2 = apply(predS, c(1), quantile, probs = c(0.25, 0.5, 0.75), na.rm = TRUE)
@@ -39,7 +39,7 @@ get_spprich <- function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = N
     }
   }
   if (measure == "Y") {
-    tmp = abind(predY, along = 3)
+    tmp = abind::abind(predY, along = 3)
     Pr = mean(tmp[ngrid, index, ] > tmp[1, index, ])
     qpred = apply(tmp, c(1, 2), quantile, probs = q, na.rm = TRUE)
     qpred = qpred[, , index]
@@ -56,7 +56,7 @@ get_spprich <- function (hM, Gradient, predY, measure, xlabel = NULL, ylabel = N
       predT = lapply(predY, function(a) (a %*% hM$Tr)/matrix(rep(rowSums(a), 
                                                                  hM$nt), ncol = hM$nt))
     }
-    predT = abind(predT, along = 3)
+    predT = abind::abind(predT, along = 3)
     Pr = mean(predT[ngrid, index, ] > predT[1, index, ])
     qpred = apply(predT, c(1, 2), quantile, probs = q, na.rm = TRUE)
     qpred = qpred[, , index]
