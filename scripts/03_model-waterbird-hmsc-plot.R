@@ -204,10 +204,11 @@ ggplot(dat_sum) +
   scale_fill_distiller(palette = 'YlOrRd', direction = 1) +
   xlab('') +
   ylab('') +
-  facet_wrap(~ cluster, ncol=3) +
-  theme_classic()
+  facet_wrap(~ cluster, ncol=4) +
+  theme_classic() +
+  theme(legend.position = c(0.85, 0.2))
 
-ggsave('outputs/cluster-heatmap.png', width = 6, height = 4)
+ggsave('outputs/cluster-heatmap.png', width = 6.5, height = 3.5)
 
 beta4 <- beta %>% 
   left_join(dplyr::select(dat.clust, species, cluster)) %>% 
@@ -240,13 +241,13 @@ ggplot(beta3) +
   geom_tile() +
   xlab('') +
   ylab('') +
-  facet_wrap(~cluster, ncol=3, scales = 'free_y') +
+  facet_wrap(~cluster, ncol=4, scales = 'free_y') +
   theme_classic() +
   theme(legend.title = element_blank(),
-        legend.position = c(0.3, 0.06),
+        legend.position = c(0.8, 0.06),
         axis.text.x = element_text(angle = 45, vjust = 0.98, hjust = 1))
 
-ggsave('outputs/indicator-response-heatmap.png', width = 9, height = 9)
+ggsave('outputs/indicator-response-heatmap.png', width = 12, height = 7)
 
 # pca
 
