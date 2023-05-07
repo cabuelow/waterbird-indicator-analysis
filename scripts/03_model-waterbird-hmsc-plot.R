@@ -47,8 +47,6 @@ ggsave('outputs/spp-var-explained.png', width = 7, height = 10)
 # here we set non.focal variables to 1, so just get the marginal effects of each focal variable
 # this is the effect of the focal variable, independent of the others (fixes non-focal variables to most likely values)
 
-mpost <- convertToCodaObject(m)
-
 prednames <- colnames(m$XData)
 spp <- list()
 trend <- list()
@@ -86,6 +84,8 @@ plotBeta(m, post = postBeta, param = "Support",
 # summarise beta coefficents from posterior distribution for more enhanced control over plotting etc.
 # extract mean coefs and credible intervals from each mcmc chain
 
+mpost <- convertToCodaObject(m)
+
 beta.coefs <- list()
 for(i in seq_along(mpost$Beta)){ # loop through mcmc chains to extract
   b.stats <- data.frame(summary(mpost$Beta[[i]])$statistics)
@@ -108,13 +108,15 @@ beta <- do.call(rbind, beta.coefs) %>%
   summarise(val = median(val)) %>%
   pivot_wider(names_from = 'stat', values_from = 'val') %>% 
   mutate(probable_pos = ifelse(CI.75>0 & CI.25>0, 1, 0),
-         probable_neg = ifelse(CI.75<0 & CI.25<0, 1, 0))
+         probable_neg = ifelse(CI.75<0 & CI.25<0, 1, 0)) %>% 
+  mutate(probable_pos2 = ifelse(CI.97.5>0 & CI.2.5>0, 1, 0),
+         probable_neg2 = ifelse(CI.97.5<0 & CI.2.5<0, 1, 0))
 
 # plot beta coefs with either weak effect (50% CIs) or strong effect (95% CIS)
 
 beta2 <- beta %>% 
   filter(probable_pos == 1 | probable_neg == 1) %>% 
-  mutate(probable_pos = ifelse(probable_pos == 1, 'Positive', 'Negative')) %>% 
+  mutate(direction = ifelse(probable_pos == 1, 'Positive', 'Negative')) %>% 
   filter(variable != 'pre_mm_syr')
 
 ggplot(beta2) +
@@ -136,7 +138,7 @@ ggsave('outputs/beta-coefficients_100.png', width = 10, height = 8.5)
 # turn into heatmap for easier visualisation - +ve or -ve responses
 
 ggplot(beta2) +
-  aes(x = variable, y = species, fill = factor(probable_pos)) +
+  aes(x = variable, y = species, fill = factor(direction)) +
   geom_tile() +
   xlab('') +
   ylab('') +
@@ -234,18 +236,20 @@ ggsave('outputs/beta-coefficients_100_cluster.png', width = 10, height = 8.5)
 beta3 <- beta2 %>% 
   left_join(dat.clust, by = 'species')
 
-ggplot(beta3) +
-  aes(x = variable, y = species, fill = factor(probable_pos)) +
-  geom_tile() +
+ggplot() +
+  geom_tile(data = beta3, 
+            aes(x = variable, y = species, fill = factor(direction)), alpha = 0.4) +
+  geom_tile(data = filter(beta3, probable_pos == probable_pos2 & probable_neg == probable_neg2), 
+            aes(x = variable, y = species, fill = factor(direction))) +
   xlab('') +
   ylab('') +
-  facet_wrap(~cluster, ncol=4, scales = 'free_y') +
+  facet_grid(rows = vars(cluster), scales = 'free_y', space = 'free') +
   theme_classic() +
   theme(legend.title = element_blank(),
-        legend.position = c(0.8, 0.06),
+        legend.position = 'bottom',
         axis.text.x = element_text(angle = 45, vjust = 0.98, hjust = 1))
 
-ggsave('outputs/indicator-response-heatmap.png', width = 12, height = 7)
+ggsave('outputs/indicator-response-heatmap.png', width = 3.5, height = 12)
 
 ### extra for looking at residual correlations between species - species interactions or missing covariates
 
