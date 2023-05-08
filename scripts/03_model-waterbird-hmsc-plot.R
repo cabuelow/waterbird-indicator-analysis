@@ -236,6 +236,7 @@ ggsave('outputs/beta-coefficients_100_cluster.png', width = 10, height = 8.5)
 
 beta3 <- beta2 %>% 
   left_join(dat.clust, by = 'species')
+write.csv(beta3, 'outputs/spp-beta-coefs.csv', row.names = F)
 
 beta3.1 <- beta3 %>% filter(cluster %in% c(1,2,3))
 # TODO fix this below, just doing a quick fix for no2
