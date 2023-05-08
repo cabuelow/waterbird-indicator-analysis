@@ -14,6 +14,7 @@ library(cluster)
 library(scales)
 library(ggrepel)
 library(abind)
+library(patchwork)
 source('scripts/plot-helpers.R')
 
 # load model
@@ -236,20 +237,39 @@ ggsave('outputs/beta-coefficients_100_cluster.png', width = 10, height = 8.5)
 beta3 <- beta2 %>% 
   left_join(dat.clust, by = 'species')
 
-ggplot() +
-  geom_tile(data = beta3, 
+beta3.1 <- beta3 %>% filter(cluster %in% c(1,2,3))
+# TODO fix this below, just doing a quick fix for no2
+beta3.2 <- beta3 %>% filter(cluster %in% c(4,5,6,7)) %>% mutate(color = ifelse(probable_pos == probable_pos2 & probable_neg == probable_neg2, 'Positive', NA))
+
+a <- ggplot() +
+  geom_tile(data = beta3.1, 
             aes(x = variable, y = species, fill = factor(direction)), alpha = 0.4) +
-  geom_tile(data = filter(beta3, probable_pos == probable_pos2 & probable_neg == probable_neg2), 
+  geom_tile(data = filter(beta3.1, probable_pos == probable_pos2 & probable_neg == probable_neg2), 
             aes(x = variable, y = species, fill = factor(direction))) +
   xlab('') +
   ylab('') +
   facet_grid(rows = vars(cluster), scales = 'free_y', space = 'free') +
   theme_classic() +
   theme(legend.title = element_blank(),
-        legend.position = 'bottom',
+        legend.position = 'none',
         axis.text.x = element_text(angle = 45, vjust = 0.98, hjust = 1))
-
-ggsave('outputs/indicator-response-heatmap.png', width = 3.5, height = 12)
+a
+b <- ggplot() +
+  geom_tile(data = beta3.2, 
+            aes(x = variable, y = species, fill = factor(direction)), alpha = 0.4) +
+  geom_tile(data = beta3.2, 
+            aes(x = variable, y = species, fill = factor(color))) +
+  scale_fill_manual(values = c('#F8766D', '#00BFC4'), na.value = 'transparent') +
+  xlab('') +
+  ylab('') +
+  facet_grid(rows = vars(cluster), scales = 'free_y', space = 'free') +
+  theme_classic() +
+  theme(legend.title = element_blank(),
+        legend.position = 'right',
+        axis.text.x = element_text(angle = 45, vjust = 0.98, hjust = 1))
+b
+a+b
+ggsave('outputs/indicator-response-heatmap.png', width = 8, height = 6.5)
 
 ### extra for looking at residual correlations between species - species interactions or missing covariates
 
