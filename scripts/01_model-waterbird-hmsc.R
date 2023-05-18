@@ -9,7 +9,7 @@ library(scales)
 
 # data
 
-birds.env <- read.csv('data/waterbird-basin-threats-100_bioregion.csv') 
+birds.env <- read.csv('data/waterbird-basin-threats-100_bioregion_notshore.csv') 
 
 # there was multicollinearity in several of the predictors,
 # so we have chosen a set that aren't multicollinear, chosen based on relevance to management
@@ -97,7 +97,7 @@ system.time( # takes 15 mins to run (1000 samples, 4 chains, 10 thinning, 1000 b
 )
 # save model
 
-saveRDS(m, 'outputs/models/mod-spatialRF_final.rds')
+saveRDS(m, 'outputs/models/mod-spatialRF_final_notshore.rds')
 
 
 

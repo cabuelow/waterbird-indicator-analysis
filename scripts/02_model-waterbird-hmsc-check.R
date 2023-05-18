@@ -8,7 +8,7 @@ source('scripts/functions/calculate-residuals.R')
 
 # load model
 
-m <- readRDS('outputs/models/mod-spatialRF_final.rds')
+m <- readRDS('outputs/models/mod-spatialRF_final_notshore.rds')
 m
 
 # wait to do this for the final models
@@ -30,7 +30,7 @@ gelman.diag(mpost$Beta, multivariate = F)$psrf
 
 # get trace plots
 
-pdf('outputs/beta-trace-plots.pdf')
+pdf('outputs/beta-trace-plots_notshore.pdf')
 plot(mpost$Beta)
 dev.off()
 
@@ -79,7 +79,7 @@ preds.mean <- apply(preds, FUN = mean, MARGIN = c(1,2))
 
 # check structural model assumptions with DS residuals
 
-png('outputs/residuals.png', width = 500, height = 300)
+png('outputs/residuals_notshore.png', width = 500, height = 300)
 resid(m$Y, preds.mean, plotds = T, family = 'binomial')
 dev.off()
 
@@ -91,7 +91,7 @@ names <- colnames(m$Y)
 mfit <- data.frame(spp = names, AUC = spp.fit$AUC, TjurR2 = spp.fit$TjurR2)
 mfit
 
-write.csv(mfit, 'outputs/model-fit.csv', row.names = F)
+write.csv(mfit, 'outputs/model-fit_notshore.csv', row.names = F)
 
 # evaluate model performance based on cross validation, i.e. predictive power
 # increasing the number of folds means that more data is availabel for fitting the model

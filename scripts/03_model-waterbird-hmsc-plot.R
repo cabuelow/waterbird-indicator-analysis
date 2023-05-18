@@ -19,7 +19,7 @@ source('scripts/plot-helpers.R')
 
 # load model
 
-m <- readRDS('outputs/models/mod-spatialRF_final.rds')
+m <- readRDS('outputs/models/mod-spatialRF_final_notshore.rds')
 
 # partition explained variance among fixed and random effects
 
@@ -42,7 +42,7 @@ ggplot(vardf.long) +
   theme(legend.title = element_blank(),
         legend.position = 'bottom')
 
-ggsave('outputs/spp-var-explained.png', width = 7, height = 10)
+ggsave('outputs/spp-var-explained_notshore.png', width = 7, height = 10)
 
 # community-level effects - species richness vs. threats
 # here we set non.focal variables to 1, so just get the marginal effects of each focal variable
@@ -74,7 +74,7 @@ ggplot() +
   ylab('Species Richness') +
   theme_classic()
 
-ggsave('outputs/species-trends.png', width = 6, height = 4)
+ggsave('outputs/species-trends_notshore.png', width = 6, height = 4)
 
 # plot individual species marginal effects 
 
@@ -134,7 +134,7 @@ ggplot(beta2) +
   coord_flip() +
   theme(legend.position = 'none') 
 
-ggsave('outputs/beta-coefficients_100.png', width = 10, height = 8.5)
+ggsave('outputs/beta-coefficients_100_notshore.png', width = 10, height = 8.5)
 
 # turn into heatmap for easier visualisation - +ve or -ve responses
 
@@ -148,7 +148,7 @@ ggplot(beta2) +
   theme(legend.title = element_blank(),
         axis.text.x = element_text(angle = 45, vjust = 0.95, hjust = 1))
 
-ggsave('outputs/indicator-response-heatmap.png', width = 5, height = 10)
+ggsave('outputs/indicator-response-heatmap_notshore.png', width = 5, height = 10)
 
 # cluster analysis to identify species that are respoding simililarly to threats
 
@@ -180,7 +180,7 @@ fviz_cluster(km, data = dat2,
 # interpretation plots
 
 dat.clust <- data.frame(spp.response, cluster = km$cluster)
-write.csv(dat.clust, 'data/cluster-dat.csv', row.names = F)
+write.csv(dat.clust, 'data/cluster-dat_notshore.csv', row.names = F)
 
 # heatmap of scores for each indicator in each cluster
 
@@ -209,7 +209,7 @@ ggplot(dat_sum) +
   theme_classic() +
   theme(legend.position = c(0.85, 0.2))
 
-ggsave('outputs/cluster-heatmap.png', width = 6.5, height = 3.5)
+ggsave('outputs/cluster-heatmap_notshore.png', width = 6.5, height = 3.5)
 
 beta4 <- beta %>% 
   left_join(dplyr::select(dat.clust, species, cluster)) %>% 
@@ -230,23 +230,26 @@ ggplot(beta4) +
   coord_flip() #+
  # theme(legend.position = 'none') 
 
-ggsave('outputs/beta-coefficients_100_cluster.png', width = 10, height = 8.5)
+ggsave('outputs/beta-coefficients_100_cluster_notshore.png', width = 10, height = 8.5)
 
 # now plot spp responses grouped by their cluster
 
 beta3 <- beta2 %>% 
   left_join(dat.clust, by = 'species')
-write.csv(beta3, 'outputs/spp-beta-coefs.csv', row.names = F)
+write.csv(beta3, 'outputs/spp-beta-coefs_notshore.csv', row.names = F)
 
-beta3.1 <- beta3 %>% filter(cluster %in% c(1,2,3))
+beta3.1 <- beta3 %>% filter(cluster %in% c(1,2,3,4)) %>% mutate(color = ifelse(probable_pos2 == 1 , 'Positive', NA)) %>% 
+                                                       mutate(color = ifelse(probable_neg2 == 1, 'Negative', color))
 # TODO fix this below, just doing a quick fix for no2
-beta3.2 <- beta3 %>% filter(cluster %in% c(4,5,6,7)) %>% mutate(color = ifelse(probable_pos == probable_pos2 & probable_neg == probable_neg2, 'Positive', NA))
+beta3.2 <- beta3 %>% filter(cluster %in% c(5,6,7)) %>% mutate(color = ifelse(probable_pos2 == 1 , 'Positive', NA)) %>% 
+                                                      mutate(color = ifelse(probable_neg2 == 1, 'Negative', color))
 
 a <- ggplot() +
   geom_tile(data = beta3.1, 
             aes(x = variable, y = species, fill = factor(direction)), alpha = 0.4) +
-  geom_tile(data = filter(beta3.1, probable_pos == probable_pos2 & probable_neg == probable_neg2), 
-            aes(x = variable, y = species, fill = factor(direction))) +
+  geom_tile(data = beta3.1, 
+            aes(x = variable, y = species, fill = factor(color))) +
+  scale_fill_manual(values = c('#F8766D', '#00BFC4'), na.value = 'transparent') +
   xlab('') +
   ylab('') +
   facet_grid(rows = vars(cluster), scales = 'free_y', space = 'free') +
@@ -270,7 +273,7 @@ b <- ggplot() +
         axis.text.x = element_text(angle = 45, vjust = 0.98, hjust = 1))
 b
 a+b
-ggsave('outputs/indicator-response-heatmap-final.png', width = 8, height = 6.5)
+ggsave('outputs/indicator-response-heatmap-final_notshore.png', width = 8, height = 6.5)
 
 ### extra for looking at residual correlations between species - species interactions or missing covariates
 

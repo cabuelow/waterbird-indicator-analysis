@@ -10,10 +10,10 @@ library(Hmsc)
 
 # load data
 
-dat <- read.csv('data/waterbird-basin-threats-100_bioregion.csv')
+dat <- read.csv('data/waterbird-basin-threats-100_bioregion_notshore.csv')
 basins.qld <- st_read('data/Enviro_dat_QLD/hydro_basins_qld_lev08_valid.shp')
 qld <- st_read('data/qld-shp/queensland-polygon.shp')
-m <- readRDS('outputs/models/mod-spatialRF_final.rds')
+m <- readRDS('outputs/models/mod-spatialRF_final_notshore.rds')
 m
 
 # use model to predict probability of spp occurrence will increase or decrease depending on threat
@@ -79,7 +79,7 @@ ggplot(plotdf) +
   theme_classic() +
   theme(legend.position = 'none')
 
-ggsave('outputs/black-swan-scenario-correlation.png', width = 5.5, height = 5)
+ggsave('outputs/black-swan-scenario-correlation_notshore.png', width = 5.5, height = 5)
 
 # map predictions
 
@@ -99,14 +99,14 @@ tm_shape(predY.sf) +
 mm <- tmap_arrange(m1, m2)
 mm
 
-tmap_save(mm, 'outputs/map-scenario_black-swan.png', width = 6.666, height = 4)
+tmap_save(mm, 'outputs/map-scenario_black-swan_notshore.png', width = 6.666, height = 4)
 
 m3 <- tm_shape(qld) +
   tm_fill() +
   tm_shape(predY.sf) +
   tm_polygons('group', palette = 'Set2', legend.show = F) # turn on legend by saying T
 m3
-tmap_save(m3, 'outputs/map-scenario_black-swan-categories.png', width = 6, height = 6)
+tmap_save(m3, 'outputs/map-scenario_black-swan-categories_notshore.png', width = 6, height = 6)
 
 ### End here
 
