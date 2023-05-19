@@ -7,7 +7,7 @@ library(sf)
 # read in data 
 
 basins.qld <- st_read('data/Enviro_dat_QLD/hydro_basins_qld_lev08_valid.shp')
-birds.env <- read.csv('data/waterbird-basin-threats-100_bioregion.csv') 
+birds.env <- read.csv('data/waterbird-basin-threats-100_bioregion_notshore.csv') 
 bio <- st_read('data/Biogeographic_Regions.shp') %>% st_transform(st_crs(basins.qld))
 qld <- st_read('data/qld-shp/queensland-polygon.shp')
 
