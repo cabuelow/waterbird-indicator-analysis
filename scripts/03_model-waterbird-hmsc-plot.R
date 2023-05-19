@@ -166,7 +166,7 @@ row.names(dat2) <- spp.response$species
 # try kmeans
 
 fviz_nbclust(dat2, kmeans, method = "wss")
-km <- kmeans(dat2, 7, nstart = 50)
+km <- kmeans(dat2, 6, nstart = 50)
 
 # visualise
 
@@ -238,10 +238,10 @@ beta3 <- beta2 %>%
   left_join(dat.clust, by = 'species')
 write.csv(beta3, 'outputs/spp-beta-coefs_notshore.csv', row.names = F)
 
-beta3.1 <- beta3 %>% filter(cluster %in% c(1,2,3,4)) %>% mutate(color = ifelse(probable_pos2 == 1 , 'Positive', NA)) %>% 
+beta3.1 <- beta3 %>% filter(cluster %in% c(1,2,3)) %>% mutate(color = ifelse(probable_pos2 == 1 , 'Positive', NA)) %>% 
                                                        mutate(color = ifelse(probable_neg2 == 1, 'Negative', color))
 # TODO fix this below, just doing a quick fix for no2
-beta3.2 <- beta3 %>% filter(cluster %in% c(5,6,7)) %>% mutate(color = ifelse(probable_pos2 == 1 , 'Positive', NA)) %>% 
+beta3.2 <- beta3 %>% filter(cluster %in% c(4,5,6)) %>% mutate(color = ifelse(probable_pos2 == 1 , 'Positive', NA)) %>% 
                                                       mutate(color = ifelse(probable_neg2 == 1, 'Negative', color))
 
 a <- ggplot() +
