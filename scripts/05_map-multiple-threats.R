@@ -79,13 +79,13 @@ EpredY$Chestnut.Teal_phosphorus_loading <- rescale(EpredY2$Chestnut.Teal - Epred
 EpredY$Black.Swan_cons_water_loss <- rescale(EpredY3$Black.Swan - EpredY$Black.Swan, to = c(0,1)) 
 EpredY$Black.Swan_phosphorus_loading <- rescale(EpredY2$Black.Swan - EpredY$Black.Swan, to = c(0,1)) 
 
-# classify basins so that if has detection probability 50% above baseline, can detect it
+# classify basins so that if has increased detection probability above 50th percentile, can detect it
 
 aus.bittern <- EpredY %>% 
   dplyr::select(HYBAS_ID, Australasian.Bittern_phosphorus_loading:Australasian.Bittern_nitrogen_loading) %>% 
-  mutate(Consumptive_Water_Loss = ifelse(Australasian.Bittern_cons_water_loss > 0.5, 1, 0)) %>% 
-  mutate(Phosphorus_Loading = ifelse(Australasian.Bittern_phosphorus_loading> 0.5, 1, 0)) %>% 
-  mutate(Nitrogen_Loading = ifelse(Australasian.Bittern_nitrogen_loading > 0.5, 1, 0)) %>% 
+  mutate(Consumptive_Water_Loss = ifelse(Australasian.Bittern_cons_water_loss > quantile(EpredY$Australasian.Bittern_cons_water_loss, 0.5), 1, 0)) %>% 
+  mutate(Phosphorus_Loading = ifelse(Australasian.Bittern_phosphorus_loading > quantile(EpredY$Australasian.Bittern_phosphorus_loading, 0.5), 1, 0)) %>% 
+  mutate(Nitrogen_Loading = ifelse(Australasian.Bittern_nitrogen_loading > quantile(EpredY$Australasian.Bittern_nitrogen_loading, 0.5), 1, 0)) %>% 
   mutate(total = Phosphorus_Loading + Consumptive_Water_Loss + Nitrogen_Loading) %>% 
   filter(total == 1) %>% # filter where can only indicate one threat
   pivot_longer(cols = Phosphorus_Loading:Nitrogen_Loading, names_to = 'Threat', values_to = 'Detect') %>% 
@@ -94,9 +94,9 @@ aus.bittern <- EpredY %>%
 
 musk.duck <- EpredY %>% 
   dplyr::select(HYBAS_ID, Musk.Duck_phosphorus_loading, Musk.Duck_cons_water_loss, Musk.Duck_nitrogen_loading) %>% 
-  mutate(Consumptive_Water_Loss = ifelse(Musk.Duck_cons_water_loss > 0.5, 1, 0)) %>% 
-  mutate(Phosphorus_Loading = ifelse(Musk.Duck_phosphorus_loading> 0.5, 1, 0)) %>% 
-  mutate(Nitrogen_Loading = ifelse(Musk.Duck_nitrogen_loading > 0.5, 1, 0)) %>% 
+  mutate(Consumptive_Water_Loss = ifelse(Musk.Duck_cons_water_loss > quantile(EpredY$Musk.Duck_cons_water_loss, 0.5), 1, 0)) %>% 
+  mutate(Phosphorus_Loading = ifelse(Musk.Duck_phosphorus_loading> quantile(EpredY$Musk.Duck_phosphorus_loading, 0.5), 1, 0)) %>% 
+  mutate(Nitrogen_Loading = ifelse(Musk.Duck_nitrogen_loading > quantile(EpredY$Musk.Duck_nitrogen_loading, 0.5), 1, 0)) %>% 
   mutate(total = Phosphorus_Loading + Consumptive_Water_Loss + Nitrogen_Loading) %>% 
   filter(total == 1) %>% # filter where can only indicate one threat
   pivot_longer(cols = Phosphorus_Loading:Nitrogen_Loading, names_to = 'Threat', values_to = 'Detect') %>% 
@@ -105,8 +105,8 @@ musk.duck <- EpredY %>%
 
 Mangrove.Honeyeater <- EpredY %>% 
   dplyr::select(HYBAS_ID, Mangrove.Honeyeater_cons_water_loss, Mangrove.Honeyeater_nitrogen_loading) %>% 
-  mutate(Consumptive_Water_Loss = ifelse(Mangrove.Honeyeater_cons_water_loss > 0.5, 1, 0)) %>% 
-  mutate(Nitrogen_Loading = ifelse(Mangrove.Honeyeater_nitrogen_loading > 0.5, 1, 0)) %>% 
+  mutate(Consumptive_Water_Loss = ifelse(Mangrove.Honeyeater_cons_water_loss > quantile(EpredY$Mangrove.Honeyeater_cons_water_loss, 0.5), 1, 0)) %>% 
+  mutate(Nitrogen_Loading = ifelse(Mangrove.Honeyeater_nitrogen_loading > quantile(EpredY$Mangrove.Honeyeater_cons_water_loss, 0.5), 1, 0)) %>% 
   mutate(total = Consumptive_Water_Loss + Nitrogen_Loading) %>% 
   filter(total == 1) %>% # filter where can only indicate one threat
   pivot_longer(cols = Consumptive_Water_Loss:Nitrogen_Loading, names_to = 'Threat', values_to = 'Detect') %>% 
@@ -115,8 +115,8 @@ Mangrove.Honeyeater <- EpredY %>%
 
 Chestnut.Teal <- EpredY %>% 
   dplyr::select(HYBAS_ID, Chestnut.Teal_pesticide_loading, Chestnut.Teal_phosphorus_loading) %>% 
-  mutate(Pesticide_Loading = ifelse(Chestnut.Teal_pesticide_loading > 0.5, 1, 0)) %>% 
-  mutate(Phosphorus_Loading = ifelse(Chestnut.Teal_phosphorus_loading > 0.5, 1, 0)) %>% 
+  mutate(Pesticide_Loading = ifelse(Chestnut.Teal_pesticide_loading > quantile(EpredY$Chestnut.Teal_pesticide_loading, 0.5), 1, 0)) %>% 
+  mutate(Phosphorus_Loading = ifelse(Chestnut.Teal_phosphorus_loading > quantile(EpredY$Chestnut.Teal_phosphorus_loading, 0.5), 1, 0)) %>% 
   mutate(total = Pesticide_Loading + Phosphorus_Loading) %>% 
   filter(total == 1) %>% # filter where can only indicate one threat
   pivot_longer(cols = Pesticide_Loading:Phosphorus_Loading, names_to = 'Threat', values_to = 'Detect') %>% 
@@ -125,8 +125,8 @@ Chestnut.Teal <- EpredY %>%
 
 Black.Swan <- EpredY %>% 
   dplyr::select(HYBAS_ID, Black.Swan_cons_water_loss, Black.Swan_phosphorus_loading) %>% 
-  mutate(Consumptive_Water_Loss = ifelse(Black.Swan_cons_water_loss > 0.5, 1, 0)) %>% 
-  mutate(Phosphorus_Loading = ifelse(Black.Swan_phosphorus_loading > 0.5, 1, 0)) %>% 
+  mutate(Consumptive_Water_Loss = ifelse(Black.Swan_cons_water_loss > quantile(EpredY$Black.Swan_cons_water_loss, 0.5), 1, 0)) %>% 
+  mutate(Phosphorus_Loading = ifelse(Black.Swan_phosphorus_loading > quantile(EpredY$Black.Swan_phosphorus_loading, 0.5), 1, 0)) %>% 
   mutate(total = Consumptive_Water_Loss + Phosphorus_Loading) %>% 
   filter(total == 1) %>% # filter where can only indicate one threat
   pivot_longer(cols = Consumptive_Water_Loss:Phosphorus_Loading, names_to = 'Threat', values_to = 'Detect') %>% 

@@ -58,10 +58,10 @@ EpredY$Probability2 <- rescale(EpredY3$Black.Swan - EpredY$Black.Swan, to = c(0,
 # is the same or different for different threats
 
 plotdf <- EpredY %>% 
-  mutate(group = ifelse(Probability < 0.5 & Probability2 < 0.5, 1, NA)) %>% 
-  mutate(group = ifelse(Probability > 0.5 & Probability2 < 0.5, 2, group)) %>% 
-  mutate(group = ifelse(Probability < 0.5 & Probability2 > 0.5, 3, group)) %>% 
-  mutate(group = ifelse(Probability > 0.5 & Probability2 > 0.5, 4, group)) %>% 
+  mutate(group = ifelse(Probability < quantile(EpredY$Probability, 0.5) & Probability2 < quantile(EpredY$Probability2, 0.5), 1, NA)) %>% 
+  mutate(group = ifelse(Probability > quantile(EpredY$Probability, 0.5) & Probability2 < quantile(EpredY$Probability2, 0.5), 2, group)) %>% 
+  mutate(group = ifelse(Probability < quantile(EpredY$Probability, 0.5) & Probability2 > quantile(EpredY$Probability2, 0.5), 3, group)) %>% 
+  mutate(group = ifelse(Probability > quantile(EpredY$Probability, 0.5) & Probability2 > quantile(EpredY$Probability2, 0.5), 4, group)) %>% 
   mutate(group  = factor(group))
 
 # plot correlations between changes in prob. of occurrence given two threats
@@ -70,16 +70,16 @@ ggplot(plotdf) +
   geom_point(aes(x = Probability, 
                  y = Probability2,
                  colour = group)) +
-  xlab('Probability of detection with increased Phosphorus') +
-  ylab('Probability of detection with increased Consumptive Water Loss') +
-  geom_vline(xintercept = 0.5) +
-  geom_hline(yintercept = 0.5) +
+  xlab('Increased probability of occurrence with high Phosphorus') +
+  ylab('Increased probability of occurrence with high Consumptive Water Loss') +
+  geom_vline(xintercept = quantile(EpredY$Probability, 0.5), alpha = 0.5) +
+  geom_hline(yintercept = quantile(EpredY$Probability2, 0.5), alpha = 0.5) +
   scale_color_brewer(palette = 'Set2') +
   #geom_abline() +
   theme_classic() +
   theme(legend.position = 'none')
 
-ggsave('outputs/black-swan-scenario-correlation_notshore.png', width = 5.5, height = 5)
+ggsave('outputs/black-swan-scenario-correlation_notshore.png', width = 5.5, height = 5.5)
 
 # map predictions
 
@@ -104,9 +104,9 @@ tmap_save(mm, 'outputs/map-scenario_black-swan_notshore.png', width = 6.666, hei
 m3 <- tm_shape(qld) +
   tm_fill() +
   tm_shape(predY.sf) +
-  tm_polygons('group', palette = 'Set2', legend.show = F) # turn on legend by saying T
+  tm_fill('group', palette = 'Set2', legend.show = F) # turn on legend by saying T
 m3
-tmap_save(m3, 'outputs/map-scenario_black-swan-categories_notshore.png', width = 6, height = 6)
+tmap_save(m3, 'outputs/map-scenario_black-swan-categories_notshore.png',  height = 4, width = 3)
 
 ### End here
 
