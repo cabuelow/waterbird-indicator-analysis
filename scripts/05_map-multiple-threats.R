@@ -153,7 +153,7 @@ predY.sf <- basins.qld %>%
 m3 <- tm_shape(qld) +
   tm_fill() +
   tm_shape(predY.sf) +
-  tm_polygons('num_indicator_species', palette = 'Set2', legend.show = T) + # turn on legend by saying T
+  tm_fill('num_indicator_species', palette = 'Set2', legend.show = T) + # turn on legend by saying T
   tm_facets(by = 'Threat', ncol = 2, free.coords = F) +
   tm_layout(legend.position = c(0.01, 0.9),
             legend.title.size = 0.8,
@@ -170,7 +170,7 @@ predY.sf <- basins.qld %>%
 m3 <- tm_shape(qld) +
   tm_fill() +
   tm_shape(predY.sf) +
-  tm_polygons('Threat', palette = 'Set2', legend.show = T) + # turn on legend by saying T
+  tm_fill('Threat', palette = 'Set2', legend.show = T) + # turn on legend by saying T
   tm_facets(by = 'species', ncol = 3, free.coords = F) +
   tm_layout(legend.position = c(0.01, 0.9),
             legend.title.size = 0.8,
