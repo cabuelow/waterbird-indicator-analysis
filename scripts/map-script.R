@@ -3,6 +3,7 @@
 library(tmap)
 library(tidyverse)
 library(sf)
+library(terra)
 
 # read in data 
 
@@ -10,6 +11,8 @@ basins.qld <- st_read('data/Enviro_dat_QLD/hydro_basins_qld_lev08_valid.shp')
 birds.env <- read.csv('data/waterbird-basin-threats-100_bioregion_notshore.csv') 
 bio <- st_read('data/Biogeographic_Regions.shp') %>% st_transform(st_crs(basins.qld))
 qld <- st_read('data/qld-shp/queensland-polygon.shp')
+fils <- list.files('data/Enviro_dat_QLD/river-threats', pattern = '.tif', full.names = T)
+threats <- lapply(fils, rast)
 
 # filter for basins with birds
 
@@ -26,7 +29,8 @@ basins.sub$Species.richness <- rowSums(dplyr::select(st_drop_geometry(basins.sub
                                               Australasian.Darter:Musk.Duck))
 # update threats selected below to only include those used in final model
 basins.sub$Cumulative.threat <- rowSums(dplyr::select(st_drop_geometry(basins.sub),
-                                               Agricultural_Water_Stress:Wetland_Disconnectivity))
+                                                      Aquaculture_Pressure, Consumptive_Water_Loss,
+                                                      Nitrogen_Loading, Pesticide_Loading, Phosphorus_Loading))
 
 # select bioregions for our study
 
@@ -39,15 +43,19 @@ bio.sub <- bio %>%
 map <- tm_shape(qld) +
   tm_fill() +
   tm_shape(bio.sub) +
-  tm_compass() +
-  tm_scale_bar() +
-  tm_polygons('Q_REG_NAME') +
+  tm_fill('Q_REG_NAME', legend.show = F) +
+  tm_shape(basins.sub) +
+  tm_polygons(alpha = 0) +
+  tm_compass(position = c(0.01, 0.08)) +
+  tm_scale_bar(position = c(0.01, 0.02)) +
   tm_layout(#legend.position = c('left', 'bottom'),
             legend.title.size = 0.1,
             legend.text.size = 0.3,
-            bg.color = 'white')
+            bg.color = 'white',
+            frame = F)
+map
 
-tmap_save(map, 'outputs/study-area-map.png',  height = 4, width = 3)
+tmap_save(map, 'outputs/study-area-map_bioregions-basins.png',  height = 4, width = 3)
 
 # mapping threats and species
 
@@ -55,29 +63,102 @@ map1 <- tm_shape(qld) +
   tm_fill() +
 tm_shape(basins.sub) +
   tm_polygons('Species.richness', title = 'Species Richness') +
-  #tm_compass() +
-  #tm_scale_bar() +
-  tm_layout(legend.position = c('left', 'bottom'),
+  tm_compass(position = c(0.01, 0.08)) +
+  tm_scale_bar(position = c(0.01, 0.02)) +
+  tm_layout(legend.position = c(0.6, 0.80),
             legend.title.size = 0.8,
             legend.text.size = 0.6,
-            bg.color = 'white')
+            bg.color = 'white',
+            frame = F)
 map1
+
+tmap_save(map1, 'outputs/study-area-spp-richness.png',  height = 4, width = 3)
 
 map2 <- tm_shape(qld) +
   tm_fill() +
   tm_shape(basins.sub) +
-  tm_polygons('Cumulative.threat', title = 'Cumulative Threat') +
-  tm_compass(position = c(0.7, 0.12)) +
-  tm_scale_bar(position = c(0.5, 0.06))  +
-  tm_layout(legend.position = c('left', 'bottom'),
+  tm_fill('Cumulative.threat', title = 'Cumulative Threat') +
+  tm_compass(position = c(0.01, 0.08)) +
+  tm_scale_bar(position = c(0.01, 0.02)) +
+  tm_layout(legend.position = c(0.6, 0.70),
             legend.title.size = 0.8,
             legend.text.size = 0.6,
-            bg.color = 'white')
+            bg.color = 'white',
+            frame = F)
 map2
+tmap_save(map2, 'outputs/study-area-cumulative-threat_v2.png',  height = 4, width = 3)
 
-# save
+# plot threats
 
-map3 <- tmap_arrange(map1, map2)
+map3 <- tm_shape(qld) +
+  tm_fill() +
+  tm_shape(threats[[2]]) +
+  tm_raster(title = 'Aquaculture Pressure') +
+  tm_layout(legend.position = c(0.6, 0.70),
+            legend.title.size = 0.8,
+            legend.text.size = 0.6,
+            bg.color = 'white',
+            frame = F)
 map3
+tmap_save(map3, 'outputs/aqua-pressure-map.png',  height = 4, width = 3)
 
-tmap_save(map3, 'outputs/study-area-map2.png',  height = 4, width = 6)
+map3 <- tm_shape(qld) +
+  tm_fill() +
+  tm_shape(threats[[2]]) +
+  tm_raster(title = 'Aquaculture Pressure') +
+  tm_layout(legend.position = c(0.6, 0.70),
+            legend.title.size = 0.8,
+            legend.text.size = 0.6,
+            bg.color = 'white',
+            frame = F)
+map3
+tmap_save(map3, 'outputs/aqua-pressure-map.png',  height = 4, width = 3)
+
+map3 <- tm_shape(qld) +
+  tm_fill() +
+  tm_shape(threats[[3]]) +
+  tm_raster(title = 'Consumptive water loss') +
+  tm_layout(legend.position = c(0.6, 0.70),
+            legend.title.size = 0.8,
+            legend.text.size = 0.6,
+            bg.color = 'white',
+            frame = F)
+map3
+tmap_save(map3, 'outputs/consumptive-water-loss-map.png',  height = 4, width = 3)
+
+map3 <- tm_shape(qld) +
+  tm_fill() +
+  tm_shape(threats[[12]]) +
+  tm_raster(title = 'Nitrogen loading') +
+  tm_layout(legend.position = c(0.6, 0.70),
+            legend.title.size = 0.8,
+            legend.text.size = 0.6,
+            bg.color = 'white',
+            frame = F)
+map3
+tmap_save(map3, 'outputs/nitrogen-map.png',  height = 4, width = 3)
+
+map3 <- tm_shape(qld) +
+  tm_fill() +
+  tm_shape(threats[[16]]) +
+  tm_raster(title = 'Pesticide loading') +
+  tm_layout(legend.position = c(0.6, 0.70),
+            legend.title.size = 0.8,
+            legend.text.size = 0.6,
+            bg.color = 'white',
+            frame = F)
+map3
+tmap_save(map3, 'outputs/pesticide-map.png',  height = 4, width = 3)
+
+map3 <- tm_shape(qld) +
+  tm_fill() +
+  tm_shape(threats[[17]]) +
+  tm_raster(title = 'Phosphorus loading') +
+  tm_layout(legend.position = c(0.6, 0.70),
+            legend.title.size = 0.8,
+            legend.text.size = 0.6,
+            bg.color = 'white',
+            frame = F)
+map3
+tmap_save(map3, 'outputs/phosphorus-map.png',  height = 4, width = 3)
+
