@@ -43,14 +43,14 @@ bio.sub <- bio %>%
 map <- tm_shape(qld) +
   tm_fill() +
   tm_shape(bio.sub) +
-  tm_fill('Q_REG_NAME', legend.show = F) +
+  tm_fill('Q_REG_NAME', title = 'Bioregion', legend.show = T) +
   tm_shape(basins.sub) +
   tm_polygons(alpha = 0) +
   tm_compass(position = c(0.01, 0.08)) +
   tm_scale_bar(position = c(0.01, 0.02)) +
-  tm_layout(#legend.position = c('left', 'bottom'),
-            legend.title.size = 0.1,
-            legend.text.size = 0.3,
+  tm_layout(legend.position = c(0.5, 0.7),
+            #legend.title.size = 0.1,
+            legend.text.size = 0.6,
             bg.color = 'white',
             frame = F)
 map

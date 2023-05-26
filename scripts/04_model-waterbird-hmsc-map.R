@@ -58,10 +58,10 @@ EpredY$Probability2 <- rescale(EpredY3$Black.Swan - EpredY$Black.Swan, to = c(0,
 # is the same or different for different threats
 
 plotdf <- EpredY %>% 
-  mutate(group = ifelse(Probability < quantile(EpredY$Probability, 0.5) & Probability2 < quantile(EpredY$Probability2, 0.5), 1, NA)) %>% 
-  mutate(group = ifelse(Probability > quantile(EpredY$Probability, 0.5) & Probability2 < quantile(EpredY$Probability2, 0.5), 2, group)) %>% 
-  mutate(group = ifelse(Probability < quantile(EpredY$Probability, 0.5) & Probability2 > quantile(EpredY$Probability2, 0.5), 3, group)) %>% 
-  mutate(group = ifelse(Probability > quantile(EpredY$Probability, 0.5) & Probability2 > quantile(EpredY$Probability2, 0.5), 4, group)) %>% 
+  mutate(group = ifelse(Probability <= quantile(EpredY$Probability, 0.5) & Probability2 <= quantile(EpredY$Probability2, 0.5), 1, NA)) %>% 
+  mutate(group = ifelse(Probability >= quantile(EpredY$Probability, 0.5) & Probability2 <= quantile(EpredY$Probability2, 0.5), 2, group)) %>% 
+  mutate(group = ifelse(Probability <= quantile(EpredY$Probability, 0.5) & Probability2 >= quantile(EpredY$Probability2, 0.5), 3, group)) %>% 
+  mutate(group = ifelse(Probability >= quantile(EpredY$Probability, 0.5) & Probability2 >= quantile(EpredY$Probability2, 0.5), 4, group)) %>% 
   mutate(group  = factor(group))
 
 # plot correlations between changes in prob. of occurrence given two threats
@@ -104,55 +104,10 @@ tmap_save(mm, 'outputs/map-scenario_black-swan_notshore.png', width = 6.666, hei
 m3 <- tm_shape(qld) +
   tm_fill() +
   tm_shape(predY.sf) +
-  tm_fill('group', palette = 'Set2', legend.show = F) # turn on legend by saying T
+  tm_polygons('group', palette = 'Set2', legend.show = T, title = 'Indicator group') +# turn on legend by saying T
+  tm_layout(frame = F,
+            legend.position = c(0.5,0.8))
 m3
 tmap_save(m3, 'outputs/map-scenario_black-swan-categories_notshore.png',  height = 4, width = 3)
 
 ### End here
-
-
-set.seed(123)
-EpredY$cluster <- as.factor(kmeans(EpredY, 7)$cluster) # regions of common profile
-EpredY.scen$cluster <- as.factor(kmeans(EpredY.scen, 7)$cluster) # regions of common profile
-
-EpredY$cumul.threat <- rowSums(dplyr::select(XDataNew, Aquaculture_Pressure:Wetland_Disconnectivity))
-EpredY.scen$cumul.threat <- rowSums(dplyr::select(Xdata.scen, Aquaculture_Pressure:Wetland_Disconnectivity))
-
-EpredY <- cbind(EpredY, XDataNew[,-1])
-EpredY.scen <- cbind(EpredY.scen, Xdata.scen[,-1])
-
-
-# maps of threat, spp richness and community composition
-
-m1 <- tm_shape(predY.sf) +
-  tm_polygons(col = 'cumul.threat', title = 'Threat')
-m1
-
-m2 <- tm_shape(predY.sf) +
-  tm_polygons('spp.rich', title = 'Species richness')
-m2
-
-m3 <- tm_shape(predY.sf) +
-  tm_polygons('cluster', title = 'Common profile')
-m3
-
-mm <- tmap_arrange(m1, m2, m3)
-mm
-
-tmap_save(mm, 'outputs/map-thrt-richness-profile.png', width = 10, height = 4)
-
-# maps of change in prob. of occurrence of focal spp and change in threat level
-# under scenario
-
-m4 <- tm_shape(predY.scen.sf) +
-  tm_polygons('change.threat', title = 'Pesticide Loading')
-m4
-
-m5 <- tm_shape(predY.scen.sf) +
-  tm_polygons('change.spp', title = 'Pied Cormorant')
-m5
-
-mm <- tmap_arrange(m4, m5)
-mm
-
-tmap_save(mm, 'outputs/map-scenario_pesticide-pied-cormorant.png', width = 6.666, height = 4)

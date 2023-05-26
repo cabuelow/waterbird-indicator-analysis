@@ -165,16 +165,19 @@ tmap_save(m3, 'outputs/map-scenario_number_indicator_species.png', width = 6, he
 
 predY.sf <- basins.qld %>% 
   inner_join(plot.df, by = 'HYBAS_ID') %>% 
-  filter(Detect == 1)
+  filter(Detect == 1) %>% 
+  mutate(Threat = factor(Threat, levels = c('Nitrogen_Loading', 'Consumptive_Water_Loss',
+                                   'Phosphorus_Loading', 'Pesticide_Loading')))
 
 m3 <- tm_shape(qld) +
   tm_fill() +
   tm_shape(predY.sf) +
-  tm_fill('Threat', palette = 'Set2', legend.show = T) + # turn on legend by saying T
+  tm_polygons('Threat', palette = 'Set2', legend.show = T) + # turn on legend by saying T
   tm_facets(by = 'species', ncol = 3, free.coords = F) +
-  tm_layout(legend.position = c(0.01, 0.9),
+  tm_layout(legend.position = c(0.01, 0.8),
             legend.title.size = 0.8,
-            legend.text.size = 0.45)
+            legend.text.size = 0.45,
+            panel.label.size = 0.8)
 m3
 tmap_save(m3, 'outputs/map-scenario_indicator_species.png', width = 6, height = 6)
 
