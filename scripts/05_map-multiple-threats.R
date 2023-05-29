@@ -166,8 +166,7 @@ tmap_save(m3, 'outputs/map-scenario_number_indicator_species.png', width = 6, he
 predY.sf <- basins.qld %>% 
   inner_join(plot.df, by = 'HYBAS_ID') %>% 
   filter(Detect == 1) %>% 
-  mutate(Threat = factor(Threat, levels = c('Nitrogen_Loading', 'Consumptive_Water_Loss',
-                                   'Phosphorus_Loading', 'Pesticide_Loading')))
+  mutate(Threat = factor(Threat, levels = c('Nitrogen_Loading','Phosphorus_Loading','Consumptive_Water_Loss', 'Pesticide_Loading')))
 
 m3 <- tm_shape(qld) +
   tm_fill() +

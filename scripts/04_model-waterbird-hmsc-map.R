@@ -7,6 +7,7 @@ library(raster)
 library(abind)
 library(scales)
 library(Hmsc)
+library(plotly)
 
 # load data
 
@@ -66,9 +67,10 @@ plotdf <- EpredY %>%
 
 # plot correlations between changes in prob. of occurrence given two threats
 
-ggplot(plotdf) +
+a <- ggplot(select(plotdf, group, HYBAS_ID, Probability, Probability2)) +
   geom_point(aes(x = Probability, 
                  y = Probability2,
+                 label = HYBAS_ID,
                  colour = group)) +
   xlab('Increased probability of occurrence with high Phosphorus') +
   ylab('Increased probability of occurrence with high Consumptive Water Loss') +
@@ -78,6 +80,7 @@ ggplot(plotdf) +
   #geom_abline() +
   theme_classic() +
   theme(legend.position = 'none')
+
 
 ggsave('outputs/black-swan-scenario-correlation_notshore.png', width = 5.5, height = 5.5)
 
@@ -111,3 +114,13 @@ m3
 tmap_save(m3, 'outputs/map-scenario_black-swan-categories_notshore.png',  height = 4, width = 3)
 
 ### End here
+
+m3 <- tm_shape(qld) +
+  tm_fill() +
+  tm_shape(filter(predY.sf, HYBAS_ID == 5080068310)) +
+  tm_polygons('group', palette = 'Set2', legend.show = T, title = 'Indicator group') +# turn on legend by saying T
+  tm_layout(frame = F,
+            legend.position = c(0.5,0.8))
+m3
+tmap_save(m3, 'outputs/map-scenario_black-swan-categories_notshore_1.png',  height = 4, width = 3)
+
