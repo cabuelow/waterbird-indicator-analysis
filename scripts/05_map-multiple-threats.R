@@ -171,7 +171,7 @@ predY.sf <- basins.qld %>%
 m3 <- tm_shape(qld) +
   tm_fill() +
   tm_shape(predY.sf) +
-  tm_polygons('Threat', palette = 'Set2', legend.show = T) + # turn on legend by saying T
+  tm_fill('Threat', palette = 'Set2', legend.show = T) + # turn on legend by saying T
   tm_facets(by = 'species', ncol = 3, free.coords = F) +
   tm_layout(legend.position = c(0.01, 0.8),
             legend.title.size = 0.8,
@@ -181,3 +181,15 @@ m3
 tmap_save(m3, 'outputs/map-scenario_indicator_species.png', width = 6, height = 6)
 
 ### End here
+
+m3 <- tm_shape(qld) +
+  tm_fill() +
+  tm_shape(st_buffer(predY.sf, 20000)) +
+  tm_fill('Threat', palette = 'Set2', legend.show = T) + # turn on legend by saying T
+  tm_facets(by = 'species', ncol = 3, free.coords = F) +
+  tm_layout(legend.position = c(0.01, 0.8),
+            legend.title.size = 0.8,
+            legend.text.size = 0.45,
+            panel.label.size = 0.8)
+m3
+tmap_save(m3, 'outputs/map-scenario_indicator_species_buff.png', width = 6, height = 6)

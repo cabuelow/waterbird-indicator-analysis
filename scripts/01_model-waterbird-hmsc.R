@@ -14,14 +14,13 @@ birds.env <- read.csv('data/waterbird-basin-threats-100_bioregion_notshore.csv')
 # there was multicollinearity in several of the predictors,
 # so we have chosen a set that aren't multicollinear, chosen based on relevance to management
 
-preds <- birds.env %>% 
+preds <- birds.env %>%
   dplyr::select(Consumptive_Water_Loss, # select predictors only
                                      Pesticide_Loading, 
                                      Phosphorus_Loading, Nitrogen_Loading,
                                      Aquaculture_Pressure,#ire_pc_sse, 
                                      pre_mm_syr) 
-# rescale irrigation and precipitation from 0 to 1 so on same scale as other predictors
-#preds$ire_pc_sse <- scales::rescale(preds$ire_pc_sse, to = c(0,1))
+# rescale precipitation from 0 to 1 so on same scale as other predictors
 preds$pre_mm_syr <- scales::rescale(preds$pre_mm_syr, to = c(0,1))
 
 # check multi-collinearity in predictor variables (greater than or less than 0.7)
