@@ -18,7 +18,7 @@ preds <- birds.env %>%
   dplyr::select(Consumptive_Water_Loss, # select predictors only
                                      Pesticide_Loading, 
                                      Phosphorus_Loading, Nitrogen_Loading,
-                                     Aquaculture_Pressure,#ire_pc_sse, 
+                                     Aquaculture_Pressure,
                                      pre_mm_syr) 
 # rescale precipitation from 0 to 1 so on same scale as other predictors
 preds$pre_mm_syr <- scales::rescale(preds$pre_mm_syr, to = c(0,1))
