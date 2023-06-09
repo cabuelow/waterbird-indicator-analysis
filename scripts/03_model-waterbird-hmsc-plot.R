@@ -273,7 +273,7 @@ b <- ggplot() +
         axis.text.x = element_text(angle = 45, vjust = 0.98, hjust = 1))
 b
 a+b
-ggsave('outputs/indicator-response-heatmap-final_notshore.png', width = 8, height = 6.5)
+ggsave('outputs/indicator-response-heatmap-final_notshore.png', width = 8, height = 7.5)
 
 ### extra for looking at residual correlations between species - species interactions or missing covariates
 
