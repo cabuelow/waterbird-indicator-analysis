@@ -22,16 +22,17 @@ source('scripts/plot-helpers.R')
 m <- readRDS('outputs/models/mod-spatialRF_final_notshore.rds')
 
 # partition explained variance among fixed and random effects
-
+spp <- colnames(m$Y)
 VP <- computeVariancePartitioning(m)
 plotVariancePartitioning(m, VP = VP)
 
 vardf <- data.frame(VP$vals)
-vardf$cat <- c(rep('Threats', 5), rep('Environmental', 1), 'Species interactions', 'Bioregion')
+vardf$cat <- c(rep('Threats', 5), rep('Environmental', 1), 'Residual spp. correlations', 'Bioregion')
 vardf.long <- vardf %>%
-  pivot_longer(Australasian.Darter:Musk.Duck, names_to = 'Species', values_to = 'Variance_prop')
-
-ggplot(vardf.long) +
+  pivot_longer(Australasian.Darter:Musk.Duck, names_to = 'Species', values_to = 'Variance_prop') %>% 
+  mutate(group = ifelse(Species %in% spp[1:length(spp)/2], 1, 2))
+ 
+a <- ggplot(filter(vardf.long, group == 1)) +
   aes(x = Species, y = Variance_prop, fill = cat) +
   geom_bar(stat = 'identity') +
   theme_classic() +
@@ -40,9 +41,26 @@ ggplot(vardf.long) +
   coord_flip() +
   scale_fill_manual(values = brewer.pal(4, 'Set2')) +
   theme(legend.title = element_blank(),
-        legend.position = 'bottom')
+        legend.position = 'bottom',
+        legend.direction = 'vertical')
+a
 
-ggsave('outputs/spp-var-explained_notshore.png', width = 7, height = 10)
+b <- ggplot(filter(vardf.long, group == 2)) +
+  aes(x = Species, y = Variance_prop, fill = cat) +
+  geom_bar(stat = 'identity') +
+  theme_classic() +
+  ylab('Proportion variance explained') +
+  xlab('') +
+  coord_flip() +
+  scale_fill_manual(values = brewer.pal(4, 'Set2')) +
+  theme(legend.title = element_blank(),
+        legend.position = 'bottom',
+        legend.direction = 'vertical')
+b
+
+a + b
+
+ggsave('outputs/spp-var-explained_notshore.png', width = 9, height = 7)
 
 # community-level effects - species richness vs. threats
 # here we set non.focal variables to 1, so just get the marginal effects of each focal variable
