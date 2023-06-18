@@ -72,16 +72,12 @@ ggplot() +
   facet_wrap(~Threat, scales = 'free_x') +
   xlab('') +
   ylab('Species Richness') +
+  xlab('Relative threat level') +
   theme_classic()
 
 ggsave('outputs/species-trends_notshore.png', width = 6, height = 4)
 
 # plot individual species marginal effects 
-
-postBeta = getPostEstimate(m, parName = "Beta")
-plotBeta(m, post = postBeta, param = "Support",
-         plotTree = FALSE, supportLevel = 0.95, split=.4, spNamesNumbers = c(F,F))
-
 # summarise beta coefficents from posterior distribution for more enhanced control over plotting etc.
 # extract mean coefs and credible intervals from each mcmc chain
 

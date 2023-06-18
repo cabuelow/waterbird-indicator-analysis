@@ -170,13 +170,17 @@ predY.sf <- basins.qld %>%
 
 m3 <- tm_shape(qld) +
   tm_fill() +
-  tm_shape(predY.sf) +
-  tm_fill('Threat', palette = 'Set2', legend.show = T) + # turn on legend by saying T
+  tm_shape(st_buffer(predY.sf, 20000)) +
+  tm_fill('Threat', palette = c("#A6D854", "#FFD92F", "#8DA0CB", "#E78AC3"), legend.show = F) + # turn on legend by saying T
   tm_facets(by = 'species', ncol = 3, free.coords = F) +
-  tm_layout(legend.position = c(0.01, 0.8),
+  tm_layout(legend.position = c(0.01, 0.9),
+            legend.outside = T,
             legend.title.size = 0.8,
             legend.text.size = 0.45,
-            panel.label.size = 0.8)
+            panel.label.size = 0.8) +
+  tm_add_legend(type = "fill", 
+                col = c("#A6D854", "#FFD92F", "#8DA0CB", "#E78AC3"),
+                labels = c("Nitrogen Loading", "Phosphorous Loading", "Consumptive Water Loss", "Pesticide Loading"))
 m3
 tmap_save(m3, 'outputs/map-scenario_indicator_species.png', width = 6, height = 6)
 
