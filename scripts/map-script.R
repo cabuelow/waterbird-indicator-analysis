@@ -4,9 +4,14 @@ library(tmap)
 library(tidyverse)
 library(sf)
 library(terra)
+library(tmaptools)
+library(cowplot)
+library(ggplot2)
 
 # read in data 
 
+data(World)
+aus <- World %>% filter(name == 'Australia')
 basins.qld <- st_read('data/Enviro_dat_QLD/hydro_basins_qld_lev08_valid.shp')
 birds.env <- read.csv('data/waterbird-basin-threats-100_bioregion_notshore.csv') 
 bio <- st_read('data/Biogeographic_Regions.shp') %>% st_transform(st_crs(basins.qld))
@@ -48,14 +53,39 @@ map <- tm_shape(qld) +
   tm_polygons(alpha = 0) +
   tm_compass(position = c(0.01, 0.08)) +
   tm_scale_bar(position = c(0.01, 0.02)) +
-  tm_layout(legend.position = c(0.5, 0.7),
+  tm_layout(legend.position = c(0.5, 0.8),
             #legend.title.size = 0.1,
             legend.text.size = 0.6,
+            legend.width = 2,
             bg.color = 'white',
             frame = F)
 map
 
 tmap_save(map, 'outputs/study-area-map_bioregions-basins.png',  height = 4, width = 3)
+
+# make an inset with australia
+
+qld.rect <- bb_poly(qld)
+
+ausinset <- tm_shape(aus) +
+  tm_fill(col = 'lightgrey') +
+  tm_shape(qld.rect) +
+  tm_borders(lw = 2) +
+  tm_layout(frame = T)
+ausinset
+
+# add to inset to map
+sitemap_g <- tmap_grob(map)
+ausinset_g <- tmap_grob(ausinset)
+
+finalmap <- ggdraw() +
+  draw_plot(sitemap_g) +
+  draw_plot(ausinset_g,
+            width = 0.2, height = 0.2,
+            x = 0.5, y = 0.04)
+finalmap
+
+ggsave('outputs/study-area-map_bioregions-basins_inset.png', width = 5, height = 5)
 
 # mapping threats and species
 
