@@ -108,12 +108,12 @@ m3 <- tm_shape(qld) +
   tm_fill() +
   tm_shape(predY.sf) +
   tm_fill('group', palette = 'Set2', legend.show = F, title = 'Indicator group') +# turn on legend by saying T
-  tm_layout(frame = F,
+  tm_layout(frame = T,
             legend.position = c(0.45,0.8),
             legend.width = 2) +
   tm_add_legend(type = "fill", 
                 col = c("#66C2A5", "#FC8D62", "#8DA0CB", "#E78AC3"),
-                labels = c("No response", "Indicates Phosphorous loading", "Indicates Consumptive Water Loss", "Indicates Consumptive Water Loss & Phosphorous Loading"))
+                labels = c("No response", "Indicates Phosphorous loading (PL)", "Indicates Consumptive Water Loss (CWL)", "Indicates CWL & PL"))
 m3
 tmap_save(m3, 'outputs/map-scenario_black-swan-categories_notshore.png',  height = 6, width = 7)
 

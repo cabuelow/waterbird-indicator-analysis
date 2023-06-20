@@ -53,12 +53,12 @@ map <- tm_shape(qld) +
   tm_polygons(alpha = 0) +
   tm_compass(position = c(0.01, 0.08)) +
   tm_scale_bar(position = c(0.01, 0.02)) +
-  tm_layout(legend.position = c(0.5, 0.8),
+  tm_layout(legend.position = c(0.6, 0.55),
             #legend.title.size = 0.1,
             legend.text.size = 0.6,
             legend.width = 2,
             bg.color = 'white',
-            frame = F)
+            frame = T)
 map
 
 tmap_save(map, 'outputs/study-area-map_bioregions-basins.png',  height = 4, width = 3)
@@ -82,7 +82,7 @@ finalmap <- ggdraw() +
   draw_plot(sitemap_g) +
   draw_plot(ausinset_g,
             width = 0.2, height = 0.2,
-            x = 0.5, y = 0.04)
+            x = 0.58, y = 0.72)
 finalmap
 
 ggsave('outputs/study-area-map_bioregions-basins_inset.png', width = 5, height = 5)
