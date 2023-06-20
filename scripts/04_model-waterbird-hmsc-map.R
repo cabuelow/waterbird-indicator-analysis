@@ -109,7 +109,7 @@ m3 <- tm_shape(qld) +
   tm_shape(predY.sf) +
   tm_fill('group', palette = 'Set2', legend.show = F, title = 'Indicator group') +# turn on legend by saying T
   tm_layout(frame = T,
-            legend.position = c(0.45,0.8),
+            legend.position = c(0.4,0.8),
             legend.width = 2) +
   tm_add_legend(type = "fill", 
                 col = c("#66C2A5", "#FC8D62", "#8DA0CB", "#E78AC3"),
