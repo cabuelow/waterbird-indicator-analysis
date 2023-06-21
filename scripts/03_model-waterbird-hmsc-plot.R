@@ -127,6 +127,16 @@ beta <- do.call(rbind, beta.coefs) %>%
   mutate(probable_pos2 = ifelse(CI.97.5>0 & CI.2.5>0, 1, 0),
          probable_neg2 = ifelse(CI.97.5<0 & CI.2.5<0, 1, 0))
 
+# species with no evidence for a response to any threat
+
+spp_nothreat <- beta %>% 
+  filter(variable != 'pre_mm_syr') %>% 
+  group_by(species) %>% 
+  summarise(probable_pos = sum(probable_pos),
+            probable_neg = sum(probable_neg)) %>% 
+  filter(probable_pos == 0 & probable_neg == 0)
+unique(spp_nothreat$species)
+
 # plot beta coefs with either weak effect (50% CIs) or strong effect (95% CIS)
 
 beta2 <- beta %>% 
