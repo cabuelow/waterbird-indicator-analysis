@@ -65,12 +65,17 @@ plotdf <- EpredY %>%
   mutate(group = ifelse(Probability >= quantile(EpredY$Probability, 0.5) & Probability2 >= quantile(EpredY$Probability2, 0.5), 4, group)) %>% 
   mutate(group  = factor(group))
 
+# summarise number of catchments in each group
+
+plotdf %>% 
+  group_by(group) %>% 
+  summarise(n = n())
+
 # plot correlations between changes in prob. of occurrence given two threats
 
 a <- ggplot(select(plotdf, group, HYBAS_ID, Probability, Probability2)) +
   geom_point(aes(x = Probability, 
                  y = Probability2,
-                 label = HYBAS_ID,
                  colour = group)) +
   xlab('Increased probability of occurrence with high Phosphorus') +
   ylab('Increased probability of occurrence with high Consumptive Water Loss') +
@@ -78,10 +83,9 @@ a <- ggplot(select(plotdf, group, HYBAS_ID, Probability, Probability2)) +
   geom_hline(yintercept = quantile(EpredY$Probability2, 0.5), alpha = 0.5) +
   scale_color_brewer(palette = 'Set2') +
   #geom_abline() +
-  theme_classic() +
-  theme(legend.position = 'none')
-
-
+  theme_classic() #+
+  #theme(legend.position = 'none')
+a
 ggsave('outputs/black-swan-scenario-correlation_notshore.png', width = 5.5, height = 5.5)
 
 # map predictions
