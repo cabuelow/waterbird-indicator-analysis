@@ -88,7 +88,7 @@ aus.bittern <- EpredY %>%
   mutate(Nitrogen_Loading = ifelse(Australasian.Bittern_nitrogen_loading > quantile(EpredY$Australasian.Bittern_nitrogen_loading, 0.5), 1, 0)) %>% 
   mutate(total = Phosphorus_Loading + Consumptive_Water_Loss + Nitrogen_Loading) %>% 
   filter(total == 1) %>% # filter where can only indicate one threat
-  pivot_longer(cols = Phosphorus_Loading:Nitrogen_Loading, names_to = 'Threat', values_to = 'Detect') %>% 
+  pivot_longer(cols = Consumptive_Water_Loss:Nitrogen_Loading, names_to = 'Threat', values_to = 'Detect') %>% 
   mutate(species = 'Australasian Bittern') %>% 
   dplyr::select(HYBAS_ID, species, Threat, Detect)
 
@@ -99,7 +99,7 @@ musk.duck <- EpredY %>%
   mutate(Nitrogen_Loading = ifelse(Musk.Duck_nitrogen_loading > quantile(EpredY$Musk.Duck_nitrogen_loading, 0.5), 1, 0)) %>% 
   mutate(total = Phosphorus_Loading + Consumptive_Water_Loss + Nitrogen_Loading) %>% 
   filter(total == 1) %>% # filter where can only indicate one threat
-  pivot_longer(cols = Phosphorus_Loading:Nitrogen_Loading, names_to = 'Threat', values_to = 'Detect') %>% 
+  pivot_longer(cols = Consumptive_Water_Loss:Nitrogen_Loading, names_to = 'Threat', values_to = 'Detect') %>% 
   mutate(species = 'Musk Duck') %>% 
   dplyr::select(HYBAS_ID, species, Threat, Detect)
 
@@ -171,16 +171,17 @@ predY.sf <- basins.qld %>%
 m3 <- tm_shape(qld) +
   tm_fill() +
   tm_shape(st_buffer(predY.sf, 20000)) +
-  tm_fill('Threat', palette = c("#A6D854", "#FFD92F", "#8DA0CB", "#E78AC3"), legend.show = F) + # turn on legend by saying T
+  #tm_fill('Threat', palette = c("#A6D854", "#FFD92F", "#8DA0CB", "#E78AC3"), legend.show = F) + # turn on legend by saying T
+  tm_fill('Threat', palette = 'Set2', legend.show = T) + # turn on legend by saying T 
   tm_facets(by = 'species', ncol = 3, free.coords = F) +
   tm_layout(legend.position = c(0.01, 0.9),
             legend.outside = T,
             legend.title.size = 0.8,
             legend.text.size = 0.45,
-            panel.label.size = 0.8) +
-  tm_add_legend(type = "fill", 
-                col = c("#A6D854", "#FFD92F", "#8DA0CB", "#E78AC3"),
-                labels = c("Nitrogen Loading", "Phosphorous Loading", "Consumptive Water Loss", "Pesticide Loading"))
+            panel.label.size = 0.8) #+
+ # tm_add_legend(type = "fill", 
+  #              col = c("#A6D854", "#FFD92F", "#8DA0CB", "#E78AC3"),
+   #             labels = c("Nitrogen Loading", "Phosphorous Loading", "Consumptive Water Loss", "Pesticide Loading"))
 m3
 tmap_save(m3, 'outputs/map-scenario_indicator_species.png', width = 6, height = 6)
 
